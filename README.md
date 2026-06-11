@@ -1,7 +1,7 @@
 <h1 align="center">
  <img src=".github/logo.png" alt="Retro Home Logo" width="256" />
   <br />
-  Retro Home
+  ReplayOS
 </h1>
 
 <p align="center"><b>Your Home for Retro Gaming 🕹</b></p>
@@ -9,6 +9,10 @@
 <p align="center">Made with 💝 for <img src=".github/ubuntu.png" align="top" width="18" /></p>
 
 ## Introduction
+
+ReplayOS is WIP retro-gaming system for RaspberryPi (and other devices in future).
+
+Based on [Retro Home](https://github.com/wimpysworld/retro-home) project
 
 **Retro Home is retro-gaming operating system for Raspberry Pi** and is made possible
 thanks to [Ubuntu](https://ubuntu.com/raspberry-pi) and [Ludo](https://ludo.libretro.com/).
