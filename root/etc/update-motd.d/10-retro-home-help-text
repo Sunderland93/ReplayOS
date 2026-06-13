@@ -1,10 +1,6 @@
 #!/bin/sh
 
 printf "\n"
-printf " 🐙 Code:        https://github.com/wimpysworld/retro-home\n"
-printf " 🐛 Bugs:        https://github.com/wimpysworld/retro-home/issues\n"
-printf " 📕 Docs:        https://github.com/wimpysworld/retro-home/wiki\n"
-printf " 🗣  Chat:        https://wimpysworld.io/discord\n"
-printf " 📡 Live:        https://twitch.tv/WimpysWorld\n"
-printf " 📺 Vods:        https://www.youtube.com/playlist?list=PL2O-jVSvTrBy_Iz3BjUx8XKOmNergaYk7\n"
+printf " 🐙 Code:        https://github.com/Sunderland93/ReplayOS\n"
+printf " 🐛 Bugs:        https://github.com/Sunderland93/ReplayOS/issues\n"
 printf "\n"

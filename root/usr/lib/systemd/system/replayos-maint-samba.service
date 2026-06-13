@@ -1,5 +1,5 @@
 [Unit]
-Description=Retro Home; use the bespoke Samba configuration
+Description=ReplayOS; use the bespoke Samba configuration
 After=local-fs.target
 DefaultDependencies=no
 ConditionPathExists=/usr/local/etc/samba/smb.conf

@@ -77,7 +77,7 @@ function nspawn() {
       --resolv-conf=off \
       --bind-ro="${R_STAGE_0}/resolv.conf":/etc/resolv.conf \
       --bind="${B}":/boot/firmware \
-      --machine="retro-home-${REMIX}" \
+      --machine="replayos-${REMIX}" \
       --directory "${R}" "${@}"
 
     if [ -e "${R}/etc/apt/apt.conf.d/90cache" ]; then
@@ -145,7 +145,7 @@ function stage_01_bootstrap() {
     # Disable cron; systemd timers have replaced cron
     nspawn systemctl disable cron
 
-    # Disable motd-news, Retro Home has a bespoke (static) motd
+    # Disable motd-news, ReplayOS has a bespoke (static) motd
     nspawn systemctl disable motd-news.service motd-news.timer
 
     # I've grappled with this.
@@ -187,7 +187,7 @@ function stage_02_ludo() {
             lightdm-gtk-greeter yaru-theme-gtk yaru-theme-icon yaru-theme-sound \
             yaru-theme-unity
 
-            # Enable auto-login to run Retro Home via LightDM
+            # Enable auto-login to run ReplayOS via LightDM
             cp -v root/usr/share/lightdm/lightdm.conf.d/*.conf "${R}"/usr/share/lightdm/lightdm.conf.d/
             cp -v root/usr/share/lightdm/lightdm-gtk-greeter.conf.d/*.conf "${R}"/usr/share/lightdm/lightdm-gtk-greeter.conf.d/
 
@@ -205,13 +205,13 @@ function stage_02_ludo() {
         cp root/etc/udev/rules.d/30-fb0.rules "${R}/etc/udev/rules.d/30-fb0.rules"
         cp root/usr/lib/systemd/system/splash-fbi.service "${R}/usr/lib/systemd/system/"
         nspawn systemctl enable splash-fbi.service
-        cp "root/usr/lib/systemd/system/retro-maint-fc-cache.service" "${R}/usr/lib/systemd/system/"
-        nspawn systemctl enable retro-maint-fc-cache.service
+        cp "root/usr/lib/systemd/system/replayos-maint-fc-cache.service" "${R}/usr/lib/systemd/system/"
+        nspawn systemctl enable replayos-maint-fc-cache.service
 
         # Make logo.png
         convert -density 1200 -resize ${SIZE_LOGO}x${SIZE_LOGO} -background none .github/logo.svg /tmp/logo.png
 
-        # Make Retro Home background
+        # Make ReplayOS background
         mkdir -p "${R}/usr/share/splash"
         convert -size "${SIZE_FB}" xc:black /tmp/background.png
         composite -gravity center /tmp/logo.png /tmp/background.png "${R}/usr/share/splash/splash.png"
@@ -280,8 +280,8 @@ function stage_02_ludo() {
         nspawn systemctl disable nmbd.service
 
         # Enforce the bespoke configuration
-        cp "root/usr/lib/systemd/system/retro-maint-samba.service" "${R}/usr/lib/systemd/system/"
-        nspawn systemctl enable retro-maint-samba.service
+        cp "root/usr/lib/systemd/system/replayos-maint-samba.service" "${R}/usr/lib/systemd/system/"
+        nspawn systemctl enable replayos-maint-samba.service
 
         # Create directories Ludo requires
         for DOT_DIR in .cache/connman .cache/services .config/ludo .local/ludo .local/share/ludo .ludo .update; do
@@ -295,7 +295,7 @@ function stage_02_ludo() {
         rm "${R}/storage/.cache/services/samba.conf"
 
         for LUDO_DIR in playlists roms savefiles savestates screenshots system thumbnails; do
-            mkdir -p "${R}/storage/Retro/${LUDO_DIR}"
+            mkdir -p "${R}/storage/ReplayOS/${LUDO_DIR}"
         done
 
         chown -Rv 1000:1000 "${R}/storage"
@@ -303,8 +303,8 @@ function stage_02_ludo() {
         # Make LibreElec/LudOS updates fail; this is intended
         chown -v root:root "${R}/storage/.update"
         chmod 700 "${R}/storage/.update"
-        cp "root/usr/lib/systemd/system/retro-maint-ludo-update.service" "${R}/usr/lib/systemd/system/"
-        nspawn systemctl enable retro-maint-ludo-update.service
+        cp "root/usr/lib/systemd/system/replayos-maint-ludo-update.service" "${R}/usr/lib/systemd/system/"
+        nspawn systemctl enable replayos-maint-ludo-update.service
 
         # Allow members of the 'sudo' group to start/stop services
         # Required so ludos can enable/disable SSH, Bluetooth and Samba
@@ -314,8 +314,8 @@ function stage_02_ludo() {
         # Add inotify-tools for watch-ludo-settings so it can react to settings changes
         nspawn apt-get -y install --no-install-recommends inotify-tools
 
-        # Add the retro-home script that launch LudOs
-        for BIN in hdmi-refresh retro-home splash-xli watch-ludo-settings; do
+        # Add the start-ludo-session script that launch LudOs
+        for BIN in hdmi-refresh start-ludo-session splash-xli watch-ludo-settings; do
             cp "root/usr/local/bin/${BIN}" "${R}/usr/local/bin/"
             chmod 755 "${R}/usr/local/bin/${BIN}"
         done
@@ -359,10 +359,10 @@ function stage_03_micro_desktop() {
         nspawn apt-get -y install firefox-esr
 
         # Create custom panel layout
-        cp "root/usr/share/gnome-panel/layouts/retro-home.layout" "${R}/usr/share/gnome-panel/layouts/"
+        cp "root/usr/share/gnome-panel/layouts/replayos.layout" "${R}/usr/share/gnome-panel/layouts/"
 
         # Create gschema override
-        cp "root/usr/share/glib-2.0/schemas/90_retro-home.gschema.override" "${R}/usr/share/glib-2.0/schemas/"
+        cp "root/usr/share/glib-2.0/schemas/90_replayos.gschema.override" "${R}/usr/share/glib-2.0/schemas/"
         nspawn glib-compile-schemas /usr/share/glib-2.0/schemas/
 
         # Generate ludo icons
@@ -373,7 +373,7 @@ function stage_03_micro_desktop() {
             optipng -strip all -o7 "${R}/usr/share/icons/hicolor/${SIZE}x${SIZE}/apps/ludo.png"
         done
 
-        # Generate retro-home icons
+        # Generate ReplayOS icons
         mkdir -p "${R}/usr/share/icons/hicolor/scalable/apps"
         cp .github/logo.svg "${R}/usr/share/icons/hicolor/scalable/apps/retro-home.svg"
         for SIZE in 1024 512 256 192 128 96 72 64 48 36 32 24 22 16; do
@@ -384,7 +384,7 @@ function stage_03_micro_desktop() {
 
         nspawn gtk-update-icon-cache /usr/share/icons/hicolor/
 
-        # Composite the Retro Home wallpaper
+        # Composite the ReplayOS wallpaper
         mkdir -p "${R}/usr/share/backgrounds/" 2>/dev/null
         composite -gravity center "${R}/usr/share/icons/hicolor/256x256/apps/retro-home.png" root/usr/share/backgrounds/Jammy-Jellyfish_WP_1920x1080_Grey_blank.png "${R}/usr/share/backgrounds/Retro-Home-Wallpaper.png"
         cp root/usr/share/backgrounds/Jammy-Jellyfish_WP_1920x1080_Grey_blank.png "${R}/usr/share/backgrounds/Retro-Home-Wallpaper-blank.png"
@@ -394,14 +394,14 @@ function stage_03_micro_desktop() {
         mkdir -p "${R}/usr/share/gnome-flashback-metacity/applications"
         cp "root/usr/share/gnome-flashback-metacity/applications/connman-gtk.desktop" "${R}/usr/share/gnome-flashback-metacity/applications/"
         cp "root/usr/share/gnome-flashback-metacity/applications/info.desktop" "${R}/usr/share/gnome-flashback-metacity/applications/"
-        nspawn ln -s /usr/share/gnome-flashback-metacity /usr/share/retro-desktop
+        nspawn ln -s /usr/share/gnome-flashback-metacity /usr/share/replayos-desktop
 
-        # Create Retro Home and Retro Desktop xsessions
+        # Create ReplayOS and ReplayOS Desktop xsessions
         mkdir -p "${R}"/usr/share/xsessions
-        cp root/usr/share/xsessions/retro-home.desktop "${R}"/usr/share/xsessions/
-        cp root/usr/share/xsessions/retro-desktop.desktop "${R}"/usr/share/xsessions/
+        cp root/usr/share/xsessions/replayos.desktop "${R}"/usr/share/xsessions/
+        cp root/usr/share/xsessions/replayos-desktop.desktop "${R}"/usr/share/xsessions/
         mkdir -p "${R}"/usr/libexec
-        cp root/usr/libexec/retro-desktop-metacity "${R}"/usr/libexec/
+        cp root/usr/libexec/replayos-desktop-metacity "${R}"/usr/libexec/
         # Disable GNOME Flashback sessions
         chmod 600 "${R}"/usr/share/xsessions/gnome-flashback-*.desktop
         nspawn update-desktop-database
@@ -509,9 +509,9 @@ dtoverlay=dwc2" >> "${B}/config.txt"
     for MOTD in 00-header 10-help-text 50-motd-news 92-unattended-upgrades; do
         chmod 644 "${R}/etc/update-motd.d/${MOTD}"
     done
-    # Add the Retro Home motd scripts and enable them
-    cp -v root/etc/update-motd.d/*-retro-home* "${R}/etc/update-motd.d/"
-    chmod 755 "${R}"/etc/update-motd.d/*-retro-home*
+    # Add the ReplayOS motd scripts and enable them
+    cp -v root/etc/update-motd.d/*-replayos* "${R}/etc/update-motd.d/"
+    chmod 755 "${R}"/etc/update-motd.d/*-replayos*
 
     local CASE_SUPPORT=""
 
@@ -559,9 +559,9 @@ dtoverlay=dwc2" >> "${B}/config.txt"
     esac
 
     if [ -n "${CASE_SUPPORT}" ]; then
-        cp "root/usr/lib/systemd/system/retro-home-case-support.service" "${R}/usr/lib/systemd/system/"
-        sed -i "s|CASE_SUPPORT|${CASE_SUPPORT}|g" "${R}/usr/lib/systemd/system/retro-home-case-support.service"
-        nspawn systemctl enable retro-home-case-support.service
+        cp "root/usr/lib/systemd/system/replayos-case-support.service" "${R}/usr/lib/systemd/system/"
+        sed -i "s|CASE_SUPPORT|${CASE_SUPPORT}|g" "${R}/usr/lib/systemd/system/replayos-case-support.service"
+        nspawn systemctl enable replayos-case-support.service
     fi
 }
 
@@ -863,9 +863,9 @@ IMG_VER="22.04"
 IMG_RELEASE="jammy"
 IMG_ARCH="armhf"
 IMG_STAMP=$(date +%y.%j)
-IMG_OUT="retro-home-${REMIX}-${IMG_STAMP}${IMG_QUALITY}-${IMG_ARCH}.img"
+IMG_OUT="replayos-${REMIX}-${IMG_STAMP}${IMG_QUALITY}-${IMG_ARCH}.img"
 USER_NAME="ludo"
-USER_PASS="retro"
+USER_PASS="replayos"
 USER_HOME="/storage"
 TMP_DIR="${SUDO_HOME}/Builds"
 
@@ -873,20 +873,20 @@ TMP_DIR="${SUDO_HOME}/Builds"
 for LOOP in 0 1 2 3 4 5 6 7 8 9; do
     case ${LOOP} in
       0)
-        export R_STAGE_${LOOP}="${TMP_DIR}/${IMG_ARCH}/retro-home/${IMG_VER}/${LOOP}_cache"
-        mkdir -p "${TMP_DIR}/${IMG_ARCH}/retro-home/${IMG_VER}/${LOOP}_cache" 2>/dev/null
+        export R_STAGE_${LOOP}="${TMP_DIR}/${IMG_ARCH}/replayos/${IMG_VER}/${LOOP}_cache"
+        mkdir -p "${TMP_DIR}/${IMG_ARCH}/replayos/${IMG_VER}/${LOOP}_cache" 2>/dev/null
         ;;
       1)
-        export B_STAGE_${LOOP}="${TMP_DIR}/${IMG_ARCH}/retro-home/${IMG_VER}/${LOOP}_boot"
-        export R_STAGE_${LOOP}="${TMP_DIR}/${IMG_ARCH}/retro-home/${IMG_VER}/${LOOP}_root"
-        mkdir -p "${TMP_DIR}/${IMG_ARCH}/retro-home/${IMG_VER}/${LOOP}_boot" 2>/dev/null
-        mkdir -p "${TMP_DIR}/${IMG_ARCH}/retro-home/${IMG_VER}/${LOOP}_root/boot/firmware" 2>/dev/null
+        export B_STAGE_${LOOP}="${TMP_DIR}/${IMG_ARCH}/replayos/${IMG_VER}/${LOOP}_boot"
+        export R_STAGE_${LOOP}="${TMP_DIR}/${IMG_ARCH}/replayos/${IMG_VER}/${LOOP}_root"
+        mkdir -p "${TMP_DIR}/${IMG_ARCH}/replayos/${IMG_VER}/${LOOP}_boot" 2>/dev/null
+        mkdir -p "${TMP_DIR}/${IMG_ARCH}/replayos/${IMG_VER}/${LOOP}_root/boot/firmware" 2>/dev/null
         ;;
       *)
-        export B_STAGE_${LOOP}="${TMP_DIR}/${IMG_ARCH}/retro-home-${REMIX}/${IMG_VER}/${LOOP}_boot"
-        export R_STAGE_${LOOP}="${TMP_DIR}/${IMG_ARCH}/retro-home-${REMIX}/${IMG_VER}/${LOOP}_root"
-        mkdir -p "${TMP_DIR}/${IMG_ARCH}/retro-home-${REMIX}/${IMG_VER}/${LOOP}_boot" 2>/dev/null
-        mkdir -p "${TMP_DIR}/${IMG_ARCH}/retro-home-${REMIX}/${IMG_VER}/${LOOP}_root/boot/firmware" 2>/dev/null
+        export B_STAGE_${LOOP}="${TMP_DIR}/${IMG_ARCH}/replayos-${REMIX}/${IMG_VER}/${LOOP}_boot"
+        export R_STAGE_${LOOP}="${TMP_DIR}/${IMG_ARCH}/replayos-${REMIX}/${IMG_VER}/${LOOP}_root"
+        mkdir -p "${TMP_DIR}/${IMG_ARCH}/replayos-${REMIX}/${IMG_VER}/${LOOP}_boot" 2>/dev/null
+        mkdir -p "${TMP_DIR}/${IMG_ARCH}/replayos-${REMIX}/${IMG_VER}/${LOOP}_root/boot/firmware" 2>/dev/null
         ;;
     esac
 done

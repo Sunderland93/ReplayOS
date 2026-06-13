@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=Retro Desktop
+Name=ReplayOS Desktop
 Comment=This session logs you into GNOME Flashback with Metacity
-Exec=/usr/libexec/retro-desktop-metacity
+Exec=/usr/libexec/replayos-desktop-metacity
 TryExec=metacity
 Type=Application
 DesktopNames=GNOME-Flashback;GNOME;

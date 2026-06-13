@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=Retro Home
+Name=ReplayOS
 Comment=Your home for retro gaming
-Exec=/usr/local/bin/retro-home
+Exec=/usr/local/bin/start-ludo-session
 TryExec=ludo
 Type=Application
-DesktopNames=Retro-Home;Ludo;
+DesktopNames=ReplayOS;Ludo;

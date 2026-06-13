@@ -1,5 +1,5 @@
 [Unit]
-Description=Retro Home; Make sure LibreELEC updates fail
+Description=ReplayOS; Make sure LibreELEC updates fail
 After=local-fs.target
 DefaultDependencies=no
 ConditionPathExists=/storage/.update
